@@ -34,7 +34,7 @@
                 </div>
                 <span :class="['cart', `status-${car.status}`]">{{ car.exitPort }}</span>
                 <div class="icon-con">
-                  <i v-show="!car.topArrow" class="el-icon-bottom" />
+                  <i v-show="!car.topArrow" class="el-icon-bottom" style="position: relative; top: -3px;" />
                 </div>
               </li>
             </ul>
@@ -73,7 +73,7 @@ export default {
           status: (j % 3 + 1),
           exitPort: index,
           exitPortDirection: j % 2,
-          title: 'hovertitle'
+          title: 'hovertitle-' + index
         }
         // 计算小车箭头隐藏、显示
         const topArrow = (index > 32 && index < 69 && (!car.exitPortDirection)) ||
@@ -263,20 +263,19 @@ li {
       font-size: 14px;
       .icon-con {
         width: 100%;
-        height: 14px;
+        height: 12px;
+        i {
+          font-size: 12px;
+        }
       }
-    }
-    .icon {
-      width: 100%;
-      height: 33%;
     }
     .cart {
       display: block;
       box-sizing: border-box;
       margin-left: 3px;
       width: 18px;
-      height: 17px;
-      // border: 1px solid #ddd;
+      height: 18px;
+      line-height: 18px;
       border-radius: 9px;
       &.status-2 {
         background-color: #e6b843;
