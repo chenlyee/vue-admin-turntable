@@ -29,9 +29,13 @@
                 :key="`cart-${car.index}`"
                 :class="['item', `item-${car.index}`]"
                 :title="car.title">
-                <i :class="['icon', `arrow-${car.exitPortDirection}`]"></i>
-                <span class="upload">{{ car.exitPort }}</span>
-                <i :class="['icon', `status-${car.status}`]"></i>
+                <div class="icon-con">
+                  <i v-show="car.topArrow" class="el-icon-top" />
+                </div>
+                <span :class="['cart', `status-${car.status}`]">{{ car.exitPort }}</span>
+                <div class="icon-con">
+                  <i v-show="!car.topArrow" class="el-icon-bottom" />
+                </div>
               </li>
             </ul>
           </li>
@@ -58,18 +62,26 @@ export default {
     // 小车列表
     let index = 1
     const cartList = Array.from({ length: 4 }, (v, i) => {
-      // 横向 22个 竖向 15个
+      // 横向 26个 竖向 11个
       // 横向
       const len = i % 2 === 0 ? 26 : 11
 
-      return Array.from({ length: len }, (s, j) => ({
-        index,
-        id: index++,
-        status: (j % 3 + 1),
-        exitPort: (index - 1),
-        exitPortDirection: j % 2,
-        title: 'hovertitle'
-      }))
+      return Array.from({ length: len }, (s, j) => {
+        const car = {
+          index,
+          id: index,
+          status: (j % 3 + 1),
+          exitPort: index,
+          exitPortDirection: j % 2,
+          title: 'hovertitle'
+        }
+        // 计算小车箭头隐藏、显示
+        const topArrow = (index > 32 && index < 69 && (!car.exitPortDirection)) ||
+                          ((index < 33 || index > 68) && car.exitPortDirection)
+        car.topArrow = topArrow
+        index++
+        return car
+      })
     })
 
     console.log('cartList')
@@ -210,12 +222,16 @@ li {
     }
   }
   .cart-group {
+    font-size: 0;
     .group-item {
       position: relative;
       // height: $turn-width - 6;
     }
     .group-1 {
       left: $turntable-height/2;
+      .cart-list {
+        display: flex;
+      }
     }
     .group-2 {
       position: absolute;
@@ -226,6 +242,9 @@ li {
     .group-3 {
       left: $turntable-height/2;
       top: 217px;
+      .cart-list {
+        display: flex;
+      }
     }
     .group-4 {
       position: absolute;
@@ -242,6 +261,29 @@ li {
       height: $turn-width - 5;
       border-radius: 5px;
       font-size: 14px;
+      .icon-con {
+        width: 100%;
+        height: 14px;
+      }
+    }
+    .icon {
+      width: 100%;
+      height: 33%;
+    }
+    .cart {
+      display: block;
+      box-sizing: border-box;
+      margin-left: 3px;
+      width: 18px;
+      height: 17px;
+      // border: 1px solid #ddd;
+      border-radius: 9px;
+      &.status-2 {
+        background-color: #e6b843;
+      }
+      &.status-3 {
+        background-color: #ef8886;
+      }
     }
     // 圆环第一组
     .item-27, .item-37 {
