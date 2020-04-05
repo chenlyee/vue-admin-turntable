@@ -121,6 +121,7 @@ export default {
 $turntable-width: 1100px;    // 1809 * 537
 $turntable-height: 326px;
 $turn-width: 50px;
+$cart-width: 25px;
 // 轨道周长：(1100+1100-326-326 + 3.14*(326-50-50)) 2257 74 = 30   26 26 11 11
 ul {
   margin: 0;
@@ -367,6 +368,85 @@ li {
       left: 17px;
       top: -122px;
       transform: rotate(-90deg);
+    }
+    // 下方直线轨道，左右位置对调
+    .item-38 {
+      left: $cart-width * 30;
+    }
+    .item-63 {
+      left: - $cart-width * 30;
+    }
+    .item-39 {
+      left: $cart-width * 28 - 5 * 2;
+    }
+    .item-62 {
+      left: - $cart-width * 28 + 5 * 2;
+    }
+    .item-40 {
+      left: $cart-width * 26 - 5 * 4;
+    }
+    .item-61 {
+      left: - $cart-width * 26 + 5 * 4;
+    }
+    .item-41 {
+      left: $cart-width * 24 - 5 * 6;
+    }
+    .item-60 {
+      left: - $cart-width * 24 + 5 * 6;
+    }
+    .item-42 {
+      left: $cart-width * 22 - 5 * 8;
+    }
+    .item-59 {
+      left: - $cart-width * 22 + 5 * 8;
+    }
+    .item-43 {
+      left: $cart-width * 20 - 5 * 10;
+    }
+    .item-58 {
+      left: - $cart-width * 20 + 5 * 10;
+    }
+    .item-44 {
+      left: $cart-width * 18 - 5 * 12;
+    }
+    .item-57 {
+      left: - $cart-width * 18 + 5 * 12;
+    }
+    .item-45 {
+      left: $cart-width * 16 - 5 * 14;
+    }
+    .item-56 {
+      left: - $cart-width * 16 + 5 * 14;
+    }
+    .item-46 {
+      left: $cart-width * 14 - 5 * 16;
+    }
+    .item-55 {
+      left: - $cart-width * 14 + 5 * 16;
+    }
+    .item-47 {
+      left: $cart-width * 12 - 5 * 18;
+    }
+    .item-54 {
+      left: - $cart-width * 12 + 5 * 18;
+    }
+    .item-48 {
+      left: $cart-width * 10 - 5 * 20;
+    }
+    .item-53 {
+      left: - $cart-width * 10 + 5 * 20;
+    }
+    .item-49 {
+      left: $cart-width * 8 - 5 * 22;
+    }
+    .item-52 {
+      left: - $cart-width * 8 + 5 * 22;
+    }
+    .item-50 {
+      left: $cart-width * 6 - 5 * 24;
+    }
+    .item-51 {
+      left: - $cart-width * 6 + 5 * 24;
     }
   }
 }
