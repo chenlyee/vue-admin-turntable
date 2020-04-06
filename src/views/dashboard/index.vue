@@ -61,23 +61,22 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getList } from '@/api/turntable'
 
 export default {
   name: 'Dashboard',
   data() {
-    // 下货口列表
+    // 下货口列表 - 按照顺时针方向，分为四个数组[[],[],[],[]]
     const uploadList = Array.from({ length: 4 }, (v, i) => (
       Array.from({ length: 8 }, (s, j) => ({
         id: (i * 8 + j + 1),
         status: (j % 3 + 1)
       }))
     ))
-
-    // 小车列表
+    // 小车列表 - 同下货口数组，直线轨道26个，半圆轨道11个
     let index = 1
     const cartList = Array.from({ length: 4 }, (v, i) => {
       // 横向 26个 竖向 11个
-      // 横向
       const len = i % 2 === 0 ? 26 : 11
 
       return Array.from({ length: len }, (s, j) => {
@@ -98,10 +97,8 @@ export default {
       })
     })
 
-    console.log('cartList')
-    console.log(cartList)
-
     return {
+      cartGroup: [26, 11, 26, 11],
       speed: 1.5, // 流水线速度
       notification: '', // 文本显示，和speed放在一起就好了
       cartList,
@@ -147,9 +144,42 @@ export default {
     ...mapGetters([
       'name'
     ])
+  },
+  mounted() {
+    getList().then(res => {
+      // 修改卡口状态
+      this.uploadList.forEach((g, i) => {
+        g.forEach((upload, j) => {
+          const index = i * 8 + j
+          upload.status = res.data.uploadList[index].status
+        })
+      })
+
+      // 修改小车状态
+      const cartData = res.data.cartList
+      this.cartList.forEach((g, i) => {
+        g.forEach((cart, j) => {
+          let index = 0
+          this.cartGroup.forEach((num, sub) => {
+            if (sub <= i) {
+              index += num
+            }
+          })
+
+          cart.status = cartData[index].status
+          cart.exitPort = cartData[index].exitPort
+          cart.exitPortDirection = cartData[index].exitPortDirection
+        })
+      })
+
+      // 修改顶拍相机
+      res.data.cameraList.forEach((camera, i) => {
+        this.cameraList[i].status = camera.cartId
+        this.cameraList[i].trackNum = camera.trackNum
+      })
+    })
   }
 }
-
 </script>
 
 <style lang="scss" scoped>
@@ -197,6 +227,7 @@ li {
     display: inline-block;
     box-sizing: border-box;
     border: 1px solid #c3c3c3;
+    border-radius: 5px;
     color: #333;
   }
   .upload-group {
@@ -237,11 +268,18 @@ li {
     .status-2 {
       background-color: #619ed8;
     }
+    // 异常闪烁
     .status-3 {
       background-color: #ef8886;
+      animation: blink 1s linear infinite;
     }
     .status-4 {
       background-color: #e6b843;
+    }
+    /* 定义keyframe动画，命名为blink */
+    @keyframes blink{
+      0%{opacity: 1;}
+      100%{opacity: 0;}
     }
   }
   .cart-group {
