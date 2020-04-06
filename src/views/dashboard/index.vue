@@ -40,6 +40,20 @@
             </ul>
           </li>
         </ul>
+        <ul class="camera-list">
+          <li
+            v-for="(c, i) in cameraList"
+            :key="`camera-${i}`"
+            :class="['camera', `camera-${i + 1}`]">
+            <div class="left">
+              <i class="icon"></i>
+            </div>
+            <div class="right">
+              <div class="cartId">小车编号：{{ c.cartId }}</div>
+              <div class="trackNum">条码：{{ c.trackNum }}</div>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
@@ -102,7 +116,16 @@ export default {
         status: '', // 不同状态显示不同颜色
         parcelCount: 10 // 包裹数量,文本显示
       },
-      cameraList: [],
+      cameraList: [{
+        status: '', // 相机状态
+        cartId: 10, // 小车编号
+        trackNum: '77777' // 包裹编号
+      },
+      {
+        status: '', // 相机状态
+        cartId: 11, // 小车编号
+        trackNum: '77777' // 包裹编号
+      }],
       camera: {
         status: '', // 相机状态
         cartId: 10, // 小车编号
@@ -488,6 +511,41 @@ li {
     }
     .item-51 {
       left: - $cart-width * 6 + 5 * 24;
+    }
+  }
+  // 顶拍相机
+  .camera-list {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    .camera {
+      display: flex;
+      .left, .right {
+        display: inline-block;
+      }
+      .left {
+        width: 60px;
+      }
+    }
+    .camera-1 {
+      position: relative;
+      top: 56px;
+      left: 1082px;
+      .left {
+        transform: rotate(-26deg);
+      }
+    }
+    .camera-2 {
+      position: relative;
+      left: 63px;
+      top: 81px;
+    }
+    .icon {
+      display: inline-block;
+      width: 54px;
+      height: 50px;
+      background: url('../../assets/camera.png') no-repeat;  // 620 * 583
+      background-size: contain;
     }
   }
 }
