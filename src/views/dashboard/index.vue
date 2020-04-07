@@ -28,13 +28,13 @@
                 v-for="car in c"
                 :key="`cart-${car.index}`"
                 :class="['item', `item-${car.index}`]"
-                :title="car.title">
+                :title="`下货口：${car.exitPort}`">
                 <div class="icon-con">
-                  <i v-show="car.topArrow" class="el-icon-top" />
+                  <i v-show="car.topArrow && car.exitPort" class="el-icon-top" />
                 </div>
-                <span :class="['cart', `status-${car.status}`]">{{ car.exitPort }}</span>
+                <span :class="['cart', `status-${car.status}`]">{{ car.id }}</span>
                 <div class="icon-con">
-                  <i v-show="!car.topArrow" class="el-icon-bottom" style="position: relative; top: -3px;" />
+                  <i v-show="!car.topArrow && car.exitPort" class="el-icon-bottom" style="position: relative; top: -3px;" />
                 </div>
               </li>
             </ul>
@@ -83,8 +83,8 @@ export default {
         const car = {
           index,
           id: index,
-          status: (j % 3 + 1),
-          exitPort: index,
+          status: (j % 3 ? 1 : j % 6 ? 2 : 3),
+          exitPort: (index % 4 ? index : ''),
           exitPortDirection: j % 2,
           title: 'hovertitle-' + index
         }
@@ -96,6 +96,9 @@ export default {
         return car
       })
     })
+
+    console.log('cartList')
+    console.log(cartList)
 
     return {
       cartGroup: [26, 11, 26, 11],
@@ -286,6 +289,7 @@ li {
     font-size: 0;
     .group-item {
       position: relative;
+      z-index: 99;
       // height: $turn-width - 6;
     }
     .group-1 {
