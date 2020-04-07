@@ -30,11 +30,11 @@
                 :class="['item', `item-${car.index}`]"
                 :title="`下货口：${car.exitPort}`">
                 <div class="icon-con">
-                  <i v-show="car.topArrow" class="el-icon-top" />
+                  <i v-show="car.topArrow && car.exitPort" class="el-icon-top" />
                 </div>
-                <span :class="['cart', `status-${car.status}`]">{{ car.exitPort }}</span>
+                <span :class="['cart', `status-${car.status}`]">{{ car.id }}</span>
                 <div class="icon-con">
-                  <i v-show="!car.topArrow" class="el-icon-bottom" style="position: relative; top: -3px;" />
+                  <i v-show="!car.topArrow && car.exitPort" class="el-icon-bottom" style="position: relative; top: -3px;" />
                 </div>
               </li>
             </ul>
@@ -91,7 +91,7 @@ export default {
           index,
           id: index,
           status: (j % 3 ? 1 : j % 6 ? 2 : 3),
-          exitPort: index,
+          exitPort: (index % 4 ? index : ''),
           exitPortDirection: (index % 4 ? index : ''),
           title: 'hovertitle-' + index
         }

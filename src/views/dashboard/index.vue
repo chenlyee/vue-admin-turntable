@@ -206,7 +206,7 @@ li {
 }
 .turntable-container {
   position: relative;
-  border: 1px solid greenyellow;
+  // border: 1px solid greenyellow;
   width: $turntable-width;
   height: 500px;
   .bg, .content {
