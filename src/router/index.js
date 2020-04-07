@@ -52,9 +52,13 @@ export const constantRoutes = [
       name: 'Dashboard',
       component: () => import('@/views/dashboard/index'),
       meta: { title: 'Dashboard', icon: 'dashboard' }
+    }, {
+      path: 'dashboard/turntable2',
+      name: 'Turntable',
+      component: () => import('@/views/dashboard/turntable2'),
+      meta: { title: 'turntable2', icon: 'turntable2' }
     }]
   },
-
   {
     path: '/example',
     component: Layout,
