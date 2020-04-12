@@ -76,7 +76,8 @@ import { getList } from '@/api/turntable'
 export default {
   name: 'Test',
   data() {
-    // 下货口列表 - 按照顺时针方向，分为四个数组[[],[]]
+    // 设计图内径：宽、高 726 * 388
+    // 背景图尺寸： 1809 * 537   1100 / 326  (x-50*2) / (326-50*2) = 726/388
     // statusClass: error - 红色闪烁 yellow - 黄色 blue - 蓝色 green - 绿色
     const uploadList = [[
       { id: 1, status: 0, statusClass: '' },
@@ -94,9 +95,9 @@ export default {
     ]]
     // 小车列表 - 同下货口数组，直线轨道26个，半圆轨道11个
     let index = 1
-    const cartList = Array.from({ length: 3 }, (v, i) => {
-      // 横向 26个 竖向 11个
-      const len = i === 0 ? 26 : i === 1 ? 0 : 22
+    const cartList = Array.from({ length: 4 }, (v, i) => {
+      // 横向 13个 竖向 11个
+      const len = i % 2 === 0 ? 13 : 11
 
       return Array.from({ length: len }, (s, j) => {
         const car = {
@@ -109,8 +110,8 @@ export default {
         }
         car.statusClass = car.status === 3 ? 'error' : ''
         // 计算小车箭头隐藏、显示
-        const topArrow = (index > 26 && (!car.exitPortDirection)) ||
-                          ((index < 27) && car.exitPortDirection)
+        const topArrow = (index > 19 && index < 69 && (!car.exitPortDirection)) ||
+                          ((index < 20 || index > 68) && car.exitPortDirection)
         car.topArrow = topArrow
         index++
         return car
@@ -121,7 +122,7 @@ export default {
     console.log(cartList)
 
     return {
-      cartGroup: [26, 0, 22],
+      cartGroup: [13, 11, 13, 11],
       speed: 1.5, // 流水线速度
       notification: '', // 文本显示，和speed放在一起就好了
       cartList,
@@ -160,11 +161,6 @@ export default {
         notice: '' // 提示文本信息
       }
     }
-  },
-  computed: {
-    ...mapGetters([
-      'name'
-    ])
   },
   mounted() {
     getList().then(res => {
@@ -206,10 +202,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$turntable-width: 1100px;    // 1809 * 537
-$turntable-height: 326px;
-$turn-width: 50px;
+$turntable-width: 970px;    // 862 / 537
+$turntable-height: 604.6px;
+$turn-width: 50px;    // 轨道宽度
 $cart-width: 25px;
+$inner-radius: 113px;
 // 轨道周长：(1100+1100-326-326 + 3.14*(326-50-50)) 2257 74 = 30   26 26 11 11
 ul {
   margin: 0;
@@ -220,15 +217,17 @@ li {
 }
 .dashboard {
   &-container {
-    overflow: scroll;
+    width: 100%;
+    height: calc(100vh - 50px);
     margin: 30px;
   }
 }
 .turntable-container {
+  overflow: scroll;
   position: relative;
   // border: 1px solid greenyellow;
-  width: $turntable-width;
-  height: 500px;
+  width: 100%;
+  height: calc(100vh - 50px);
   .bg, .content {
     position: absolute;
     left: 50%;
@@ -239,7 +238,7 @@ li {
     height: $turntable-height;
   }
   .bg {
-    background: url('../../assets/turntable.png') no-repeat;
+    background: url('../../assets/turntable_test.png') no-repeat;
     background-size: contain;
   }
   .content {
@@ -328,6 +327,7 @@ li {
     }
     .group-1 {
       left: $turntable-height/2;
+      top: 46px;
       .cart-list {
         display: flex;
       }
@@ -385,6 +385,132 @@ li {
       &.status-3 {
         background-color: #ef8886;
       }
+    }
+    // 圆环第一组
+    .item-14, .item-37 {
+      left: -219px;
+    }
+    .item-14 {
+      top: 27px;
+      transform: rotate(15deg);
+    }
+    .item-37 {
+      top: -245px;
+      transform: rotate(-15deg);
+    }
+    .item-64, .item-74 {
+      left: 126px;
+    }
+    .item-64 {
+      top: 288px;
+      transform: rotate(15deg);
+    }
+    .item-74 {
+      top: -507px;
+      transform: rotate(-15deg);
+    }
+    // 圆环第二组
+    .item-15, .item-36 {
+      left: -66px;
+    }
+    .item-15 {
+      top: -12px;
+      transform: rotate(30deg);
+    }
+    .item-36 {
+      top: -206px;
+      transform: rotate(-30deg);
+    }
+    .item-65, .item-73 {
+      left: 91px;
+    }
+    .item-65 {
+      top: 203px;
+      transform: rotate(30deg);
+    }
+    .item-73 {
+      top: -444px;
+      transform: rotate(-30deg);
+    }
+    // 圆环第三组
+    .item-16, .item-35 {
+      left: -37px;
+    }
+    .item-16 {
+      top: -67px;
+      transform: rotate(45deg);
+    }
+    .item-35 {
+      top: -175px;
+      transform: rotate(-45deg);
+    }
+    .item-66, .item-72 {
+      left: 61px;
+    }
+    .item-66 {
+      top: 131px;
+      transform: rotate(45deg);
+    }
+    .item-72 {
+      top: -373px;
+      transform: rotate(-45deg);
+    }
+    // 圆环第四组
+    .item-17, .item-34 {
+      left: -14px;
+    }
+    .item-17 {
+      top: -91px;
+      transform: rotate(60deg);
+    }
+    .item-34 {
+      top: -152px;
+      transform: rotate(-60deg);
+    }
+    .item-67, .item-71 {
+      left: 38px;
+    }
+    .item-67 {
+      top: 53px;
+      transform: rotate(60deg);
+    }
+    .item-71 {
+      top: -295px;
+      transform: rotate(-60deg);
+    }
+    // 圆环第五组
+    .item-18, .item-33 {
+      left: 1px; // -46px;
+    }
+    .item-18 {
+      top: -108px;
+      transform: rotate(75deg);
+    }
+    .item-33 {
+      top: -136px;
+      transform: rotate(-75deg);
+    }
+    .item-68, .item-70 {
+      left: 22px;
+    }
+    .item-68 {
+      top: -34px;
+      transform: rotate(75deg);
+    }
+    .item-70 {
+      top: -211px;
+      transform: rotate(-75deg);
+    }
+    // 圆环横向
+    .item-19 {
+      left: -37px;
+      top: -16px;
+      transform: rotate(90deg);
+    }
+    .item-69 {
+      left: 17px;
+      top: -122px;
+      transform: rotate(-90deg);
     }
   }
   // 顶拍相机
