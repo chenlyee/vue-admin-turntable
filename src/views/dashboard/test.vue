@@ -27,7 +27,7 @@
               <li
                 v-for="car in c"
                 :key="`cart-${car.index}`"
-                :class="['item', `item-${car.index}`]"
+                :class="['item', `item-${car.index}`, car.circleClass]"
                 :title="`下货口：${car.exitPort}`">
                 <div class="icon-con">
                   <i v-show="car.topArrow && car.exitPort" class="el-icon-top" />
@@ -70,7 +70,6 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import { getList } from '@/api/turntable'
 
 export default {
@@ -95,14 +94,21 @@ export default {
     ]]
     // 小车列表 - 同下货口数组，直线轨道26个，半圆轨道11个
     let index = 1
+    const len = [8, 16, 8, 16]
     const cartList = Array.from({ length: 4 }, (v, i) => {
-      // 横向 13个 竖向 11个
-      const len = i % 2 === 0 ? 13 : 11
+      const cirClass1 = i === 1 ? 'right-' : i === 3 ? 'left-' : ''
 
-      return Array.from({ length: len }, (s, j) => {
+      return Array.from({ length: len[i] }, (s, j) => {
+        let circleClass = cirClass1
+        if (i === 1 || i === 3) {
+          circleClass += (((i === 1 && j < 8) || (i === 3 && j > 7)) ? 'up-' : 'down-')
+          circleClass += ((j < 8) ? j : (j - 8))
+        }
+
         const car = {
           index,
           id: index,
+          circleClass,
           status: (j % 3 ? 1 : j % 6 ? 2 : 3),
           exitPort: (index % 4 ? index : ''),
           exitPortDirection: j % 2,
@@ -110,7 +116,7 @@ export default {
         }
         car.statusClass = car.status === 3 ? 'error' : ''
         // 计算小车箭头隐藏、显示
-        const topArrow = (index > 19 && index < 69 && (!car.exitPortDirection)) ||
+        const topArrow = (index > 16 && index < 69 && (!car.exitPortDirection)) ||
                           ((index < 20 || index > 68) && car.exitPortDirection)
         car.topArrow = topArrow
         index++
@@ -122,7 +128,7 @@ export default {
     console.log(cartList)
 
     return {
-      cartGroup: [13, 11, 13, 11],
+      cartGroup: [8, 16, 8, 16],
       speed: 1.5, // 流水线速度
       notification: '', // 文本显示，和speed放在一起就好了
       cartList,
@@ -164,9 +170,9 @@ export default {
     }
   },
   mounted() {
-    this.interval = setInterval(() => {
-      this.updateSatus()
-    }, 5000)
+    // this.interval = setInterval(() => {
+    //   this.updateSatus()
+    // }, 5000)
   },
   beforeDestroy() {
     clearInterval(this.interval)
@@ -213,12 +219,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$turntable-width: 970px;    // 862 / 537
-$turntable-height: 604.6px;
+$turntable-width: 740px;
+$turntable-height: 460px;
 $turn-width: 50px;    // 轨道宽度
-$cart-width: 25px;
-$inner-radius: 113px;
-// 轨道周长：(1100+1100-326-326 + 3.14*(326-50-50)) 2257 74 = 30   26 26 11 11
+$cart-width: 35px;    // 小车所占宽度
+$inner-radius: 180px; // 内径半径
+
 ul {
   margin: 0;
   padding: 0;
@@ -236,7 +242,6 @@ li {
 .turntable-container {
   overflow: scroll;
   position: relative;
-  // border: 1px solid greenyellow;
   width: 100%;
   height: calc(100vh - 50px);
   .bg, .content {
@@ -249,12 +254,8 @@ li {
     height: $turntable-height;
   }
   .bg {
-    background: url('../../assets/turntable_test.png') no-repeat;
+    background: url('../../assets/test_bg.png') no-repeat;
     background-size: contain;
-  }
-  .content {
-    // position: relative;
-    // z-index: 9;
   }
   .item {
     display: inline-block;
@@ -287,12 +288,12 @@ li {
       position: relative;
       height: 35px;
       &.group-1 {
-        left: $turntable-height/2 + 2;
-        top: 455px;
+        left: $turntable-height/2;
+        top: 372px;
       }
       &.group-2 {
-        left: 260px;
-        top: 572px;
+        left: 191px;
+        top: 428px;
       }
     }
   }
@@ -330,22 +331,22 @@ li {
     }
     .group-1 {
       left: $turntable-height/2;
-      top: 46px;
       .cart-list {
         display: flex;
       }
     }
     .group-2 {
       position: absolute;
-      left: $turntable-width - $turn-width;
+      right: 0;
       top: 0;
       width: $turn-width;
     }
     .group-3 {
-      right: 280px;
-      top: 465px;
+      right: 228px;
+      top: 362px;
       .cart-list {
         // display: flex;
+        font-size: 0;
       }
       .item {
         float: right;
@@ -359,8 +360,8 @@ li {
     }
     .item {
       position: relative;
-      margin-top: 6px;
-      margin-right: 5px;
+      margin-top: 3px;
+      margin-right: 10px;
       text-align: center;
       width: 25px;
       height: $turn-width - 5;
@@ -390,130 +391,172 @@ li {
       }
     }
     // 圆环第一组
-    .item-14, .item-24 {
-      left: -195px;
+    .right-up-0 {
+      left: -178px;
+      top: 0px;
+      transform: rotate(4deg);
     }
-    .item-14 {
-      top: 49px;
-      transform: rotate(15deg);
+    .right-down-7 {
+      left: -173px;
+      top: -312px;
+      transform: rotate(-7.25deg);
     }
-    .item-24 {
-      top: -8px;
-      transform: rotate(-15deg);
+    .left-down-0 {
+      left: 195px;
+      top: 408px;
+      transform: rotate(4deg);
     }
-    .item-38, .item-48 {
-      left: 237px;
-    }
-    .item-38 {
-      top: 510px;
-      transform: rotate(15deg);
-    }
-    .item-48 {
-      top: -462px;
-      transform: rotate(-15deg);
+    .left-up-7 {
+      left: 192px;
+      top: -718px;
+      transform: rotate(-7.25deg);
     }
     // 圆环第二组
-    .item-15, .item-23 {
-      left: -134px;
+    .right-up-1{
+      left: -139px;
+      top: -41px;
+      transform: rotate(15.25deg);
     }
-    .item-15 {
-      top: 21px;
-      transform: rotate(30deg);
+    .right-down-6 {
+      left: -133px;
+      top: -271px;
+      transform: rotate(-18.5deg);
     }
-    .item-23 {
-      top: 18px;
-      transform: rotate(-30deg);
+    .left-down-1 {
+      left: 157px;
+      top: 352px;
+      transform: rotate(15.25deg);
     }
-    .item-39, .item-47 {
-      left: 175px;
-    }
-    .item-39 {
-      top: 436px;
-      transform: rotate(30deg);
-    }
-    .item-47 {
-      top: -391px;
-      transform: rotate(-30deg);
+    .left-up-6 {
+      left: 153px;
+      top: -661px;
+      transform: rotate(-18.5deg);
     }
     // 圆环第三组
-    .item-16, .item-22 {
-      left: -84px;
+    .right-up-2 {
+      left: -100px;
+      top: -74px;
+      transform: rotate(26.5deg);
     }
-    .item-16 {
-      top: 2px;
-      transform: rotate(45deg);
+    .right-down-5 {
+      left: -94px;
+      top: -240px;
+      transform: rotate(-29.75deg);
     }
-    .item-22 {
-      top: 28px;
-      transform: rotate(-45deg);
+    .left-down-2 {
+      left: 119px;
+      top: 288px;
+      transform: rotate(26.5deg);
     }
-    .item-40, .item-46 {
-      left: 128px;
-    }
-    .item-40 {
-      top: 347px;
-      transform: rotate(45deg);
-    }
-    .item-46 {
-      top: -307px;
-      transform: rotate(-45deg);
+    .left-up-5 {
+      left: 118px;
+      top: -598px;
+      transform: rotate(-29.75deg);
     }
     // 圆环第四组
-    .item-17, .item-21 {
-      left: -47px;
+    .right-up-3 {
+      left: -68px;
+      top: -102px;
+      transform: rotate(37.75deg);
     }
-    .item-17 {
-      top: -2px;
-      transform: rotate(60deg);
+    .right-down-4 {
+      left: -60px;
+      top: -215px;
+      transform: rotate(-41deg);
     }
-    .item-21 {
-      top: 28px;
-      transform: rotate(-60deg);
+    .left-down-3 {
+      left: 88px;
+      top: 219px;
+      transform: rotate(37.75deg);
     }
-    .item-41, .item-45 {
-      left: 87px;
-    }
-    .item-41 {
-      top: 242px;
-      transform: rotate(60deg);
-    }
-    .item-45 {
-      top: -213px;
-      transform: rotate(-60deg);
+    .left-up-4 {
+      left: 85px;
+      top: -527px;
+      transform: rotate(-41deg);
     }
     // 圆环第五组
-    .item-18, .item-20 {
-      left: -29px; // -46px;
+    .right-up-4 {
+      left: -41px;
+      top: -124px;
+      transform: rotate(49deg);
     }
-    .item-18 {
-      top: -6px;
-      transform: rotate(75deg);
+    .right-down-3 {
+      left: -31px;
+      top: -197px;
+      transform: rotate(-52.25deg);
     }
-    .item-20 {
-      top: 14px;
-      transform: rotate(-75deg);
+    .left-down-4 {
+      left: 60px;
+      top: 143px;
+      transform: rotate(49deg);
     }
-    .item-42, .item-44 {
+    .left-up-3 {
       left: 58px;
+      top: -451px;
+      transform: rotate(-52.25deg);
     }
-    .item-42 {
-      top: 132px;
-      transform: rotate(75deg);
+    // 圆环第六组
+    .right-up-5 {
+      left: -18px;
+      top: -141px;
+      transform: rotate(60.25deg);
     }
-    .item-44 {
-      top: -101px;
-      transform: rotate(-75deg);
+    .right-down-2 {
+      left: -8px;
+      top: -185px;
+      transform: rotate(-63.5deg);
     }
-    // 圆环横向
-    .item-19 {
-      left: -23px;
-      top: -1px;
-      transform: rotate(90deg);
+    .left-down-5 {
+      left: 37px;
+      top: 62px;
+      transform: rotate(60.25deg);
     }
-    .item-43 {
-      left: 46px;
-      top: 21px;
-      transform: rotate(-90deg);
+    .left-up-2 {
+      left: 36px;
+      top: -371px;
+      transform: rotate(-63.5deg);
+    }
+    // 圆环第七组
+    .right-up-6 {
+      left: 0px;
+      top: -154px;
+      transform: rotate(71.5deg);
+    }
+    .right-down-1 {
+      left: 6px;
+      top: -175px;
+      transform: rotate(-74.75deg);
+    }
+    .left-down-6 {
+      left: 21px;
+      top: -24px;
+      transform: rotate(71.5deg);
+    }
+    .left-up-1 {
+      left: 21px;
+      top: -285px;
+      transform: rotate(-74.75deg);
+    }
+    // 圆环第八组
+    .right-up-7 {
+      left: 10px;
+      top: -162px;
+      transform: rotate(82.75deg);
+    }
+     .right-down-0 {
+      left: 12px;
+      top: -166px;
+      transform: rotate(-86deg);
+    }
+    .left-down-7 {
+      left: 14px;
+      top: -110px;
+      transform: rotate(82.75deg);
+    }
+    .left-up-0 {
+      left: 14px;
+      top: -199px;
+      transform: rotate(-86deg);
     }
   }
   // 顶拍相机
@@ -533,7 +576,7 @@ li {
     .camera-1 {
       position: relative;
       top: 56px;
-      left: 868px;
+      left: 698px;
       .left {
         transform: rotate(-26deg);
       }
@@ -567,8 +610,8 @@ li {
     }
     .chute-1 {
       position: relative;
-      left: 360px;
-      top: 121px;
+      left: 220px;
+      top: 68px;
       transform: rotate(-30deg);
     }
   }
