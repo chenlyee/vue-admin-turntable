@@ -159,44 +159,55 @@ export default {
       printer: {
         id: 1, // 打印机id
         notice: '' // 提示文本信息
-      }
+      },
+      interval: ''
     }
   },
   mounted() {
-    getList().then(res => {
-      // 修改卡口状态
-      this.uploadList.forEach((g, i) => {
-        g.forEach((upload, j) => {
-          const index = i * 8 + j
-          upload.status = res.data.uploadList[index].status
-        })
-      })
-
-      // 修改小车状态
-      const cartData = res.data.cartList
-      this.cartList.forEach((g, i) => {
-        g.forEach((cart, j) => {
-          let index = 0
-          this.cartGroup.forEach((num, sub) => {
-            if (sub <= i) {
-              index += num
-            }
+    this.interval = setInterval(() => {
+      this.updateSatus()
+    }, 5000)
+  },
+  beforeDestroy() {
+    clearInterval(this.interval)
+  },
+  methods: {
+    updateSatus() {
+      getList().then(res => {
+        // 修改卡口状态
+        this.uploadList.forEach((g, i) => {
+          g.forEach((upload, j) => {
+            const index = i * 8 + j
+            upload.status = res.data.uploadList[index].status
           })
+        })
 
-          cart.status = cartData[index].status
-          cart.exitPort = cartData[index].exitPort
-          cart.exitPortDirection = cartData[index].exitPortDirection
+        // 修改小车状态
+        const cartData = res.data.cartList
+        this.cartList.forEach((g, i) => {
+          g.forEach((cart, j) => {
+            let index = 0
+            this.cartGroup.forEach((num, sub) => {
+              if (sub <= i) {
+                index += num
+              }
+            })
+            cart.id = cartData[index].id
+            cart.status = cartData[index].status
+            cart.exitPort = cartData[index].exitPort
+            cart.exitPortDirection = cartData[index].exitPortDirection
 
-          // 小车颜色状态
+            // 小车颜色状态
+          })
+        })
+
+        // 修改顶拍相机
+        res.data.cameraList.forEach((camera, i) => {
+          this.cameraList[i].status = camera.cartId
+          this.cameraList[i].trackNum = camera.trackNum
         })
       })
-
-      // 修改顶拍相机
-      res.data.cameraList.forEach((camera, i) => {
-        this.cameraList[i].status = camera.cartId
-        this.cameraList[i].trackNum = camera.trackNum
-      })
-    })
+    }
   }
 }
 </script>
@@ -277,19 +288,11 @@ li {
       height: 35px;
       &.group-1 {
         left: $turntable-height/2 + 2;
-        top: 228px;
+        top: 455px;
       }
       &.group-2 {
-        left: $turntable-height/2 + 2;
-        top: 294px;
-      }
-      &.group-3 {
-        top: 160px;
-        left: $turntable-width/2 + 80;
-      }
-      &.group-4 {
-        top: 222px;
-        left: $turntable-width/2 + 80;
+        left: 260px;
+        top: 572px;
       }
     }
   }
@@ -339,8 +342,8 @@ li {
       width: $turn-width;
     }
     .group-3 {
-      right: $turntable-height/2;
-      top: 217px;
+      right: 280px;
+      top: 465px;
       .cart-list {
         // display: flex;
       }
@@ -387,129 +390,129 @@ li {
       }
     }
     // 圆环第一组
-    .item-14, .item-37 {
-      left: -219px;
+    .item-14, .item-24 {
+      left: -195px;
     }
     .item-14 {
-      top: 27px;
+      top: 49px;
       transform: rotate(15deg);
     }
-    .item-37 {
-      top: -245px;
+    .item-24 {
+      top: -8px;
       transform: rotate(-15deg);
     }
-    .item-64, .item-74 {
-      left: 126px;
+    .item-38, .item-48 {
+      left: 237px;
     }
-    .item-64 {
-      top: 288px;
+    .item-38 {
+      top: 510px;
       transform: rotate(15deg);
     }
-    .item-74 {
-      top: -507px;
+    .item-48 {
+      top: -462px;
       transform: rotate(-15deg);
     }
     // 圆环第二组
-    .item-15, .item-36 {
-      left: -66px;
+    .item-15, .item-23 {
+      left: -134px;
     }
     .item-15 {
-      top: -12px;
+      top: 21px;
       transform: rotate(30deg);
     }
-    .item-36 {
-      top: -206px;
+    .item-23 {
+      top: 18px;
       transform: rotate(-30deg);
     }
-    .item-65, .item-73 {
-      left: 91px;
+    .item-39, .item-47 {
+      left: 175px;
     }
-    .item-65 {
-      top: 203px;
+    .item-39 {
+      top: 436px;
       transform: rotate(30deg);
     }
-    .item-73 {
-      top: -444px;
+    .item-47 {
+      top: -391px;
       transform: rotate(-30deg);
     }
     // 圆环第三组
-    .item-16, .item-35 {
-      left: -37px;
+    .item-16, .item-22 {
+      left: -84px;
     }
     .item-16 {
-      top: -67px;
+      top: 2px;
       transform: rotate(45deg);
     }
-    .item-35 {
-      top: -175px;
+    .item-22 {
+      top: 28px;
       transform: rotate(-45deg);
     }
-    .item-66, .item-72 {
-      left: 61px;
+    .item-40, .item-46 {
+      left: 128px;
     }
-    .item-66 {
-      top: 131px;
+    .item-40 {
+      top: 347px;
       transform: rotate(45deg);
     }
-    .item-72 {
-      top: -373px;
+    .item-46 {
+      top: -307px;
       transform: rotate(-45deg);
     }
     // 圆环第四组
-    .item-17, .item-34 {
-      left: -14px;
+    .item-17, .item-21 {
+      left: -47px;
     }
     .item-17 {
-      top: -91px;
+      top: -2px;
       transform: rotate(60deg);
     }
-    .item-34 {
-      top: -152px;
+    .item-21 {
+      top: 28px;
       transform: rotate(-60deg);
     }
-    .item-67, .item-71 {
-      left: 38px;
+    .item-41, .item-45 {
+      left: 87px;
     }
-    .item-67 {
-      top: 53px;
+    .item-41 {
+      top: 242px;
       transform: rotate(60deg);
     }
-    .item-71 {
-      top: -295px;
+    .item-45 {
+      top: -213px;
       transform: rotate(-60deg);
     }
     // 圆环第五组
-    .item-18, .item-33 {
-      left: 1px; // -46px;
+    .item-18, .item-20 {
+      left: -29px; // -46px;
     }
     .item-18 {
-      top: -108px;
+      top: -6px;
       transform: rotate(75deg);
     }
-    .item-33 {
-      top: -136px;
+    .item-20 {
+      top: 14px;
       transform: rotate(-75deg);
     }
-    .item-68, .item-70 {
-      left: 22px;
+    .item-42, .item-44 {
+      left: 58px;
     }
-    .item-68 {
-      top: -34px;
+    .item-42 {
+      top: 132px;
       transform: rotate(75deg);
     }
-    .item-70 {
-      top: -211px;
+    .item-44 {
+      top: -101px;
       transform: rotate(-75deg);
     }
     // 圆环横向
     .item-19 {
-      left: -37px;
-      top: -16px;
+      left: -23px;
+      top: -1px;
       transform: rotate(90deg);
     }
-    .item-69 {
-      left: 17px;
-      top: -122px;
+    .item-43 {
+      left: 46px;
+      top: 21px;
       transform: rotate(-90deg);
     }
   }
@@ -530,7 +533,7 @@ li {
     .camera-1 {
       position: relative;
       top: 56px;
-      left: 1016px;
+      left: 868px;
       .left {
         transform: rotate(-26deg);
       }
@@ -565,7 +568,7 @@ li {
     .chute-1 {
       position: relative;
       left: 360px;
-      top: 75px;
+      top: 121px;
       transform: rotate(-30deg);
     }
   }
