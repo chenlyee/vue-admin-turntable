@@ -393,12 +393,30 @@ li {
       position: relative;
       height: 35px;
       &.group-1 {
-        left: $turntable-height/2;
+        left: 193px;
         top: 372px;
+        .item:first-child {
+          position: relative;
+          transform: rotate(12deg);
+          top: -4px;
+          left: -11px;
+        }
       }
       &.group-2 {
-        left: 191px;
+        left: 152px;
         top: 428px;
+        .item:first-child {
+          position: relative;
+          transform: rotate(18deg);
+          top: -13px;
+          left: -19px;
+        }
+        .item:nth-child(2) {
+          position: relative;
+          transform: rotate(8deg);
+          top: -2px;
+          left: -11px;
+        }
       }
     }
   }

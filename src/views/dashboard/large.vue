@@ -188,12 +188,12 @@ export default {
     }
   },
   mounted() {
-    // this.cartinterval = setInterval(() => {
-    //   this.updateCartSatus()
-    // }, 100000)
-    // this.chuteinterval = setInterval(() => {
-    //   this.updateChuteStatus()
-    // }, 3000)
+    this.cartinterval = setInterval(() => {
+      this.updateCartSatus()
+    }, 100000)
+    this.chuteinterval = setInterval(() => {
+      this.updateChuteStatus()
+    }, 3000)
   },
   beforeDestroy() {
     clearInterval(this.cartinterval)
@@ -348,19 +348,19 @@ li {
     width: 100%;
     height: calc(100vh - 50px);
     margin: 30px;
+    overflow: auto;
   }
 }
 .turntable-container {
   overflow: scroll;
   position: relative;
-  width: 100%;
+  width: 2470px;
   height: $turntable-height + 80;
   .bg, .content {
     position: absolute;
     left: 50%;
     top: 50%;
-    margin-left: -85px;
-    // margin-left: -$turntable-width/2;
+    margin-left: -$turntable-width/2;
     margin-top: -$turntable-height/2;
     width: $turntable-width;
     height: $turntable-height;
@@ -505,8 +505,8 @@ li {
     .cart {
       display: block;
       box-sizing: border-box;
-      margin-left: 3px;
-      width: 18px;
+      // margin-left: 3px;
+      width: 23px;
       height: 18px;
       line-height: 18px;
       border-radius: 9px;
@@ -742,7 +742,7 @@ li {
   .camera-list {
     position: absolute;
     top: 0;
-    width: 100%;
+    // width: 100%;
     .camera {
       display: flex;
       .left, .right {
@@ -756,6 +756,7 @@ li {
       position: relative;
       top: 215px;
       left: 2180px;
+      width: 300px;
       // .left {
       //   transform: rotate(-26deg);
       // }
