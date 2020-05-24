@@ -92,23 +92,20 @@ import {
 export default {
   name: 'Test',
   data() {
-    // 21+21+8+8+8+8=74
     // statusClass: red - 红色闪烁 yellow - 黄色 blue - 蓝色 green - 绿色
-    const chuteList = [[
-      { id: 1, status: 0 },
-      { id: 2, status: 1 },
-      { id: 3, status: 2 },
-      { id: 4, status: 3 },
-      { id: 5, status: 1 }
-    ], [
-      { id: 6, status: 0 },
-      { id: 7, status: 1 },
-      { id: 8, status: 2 },
-      { id: 9, status: 3 },
-      { id: 10, status: 0 },
-      { id: 11, status: 1 }
-    ]]
+    const chuteList = [0, 1, 2, 3].map(item => {
+      const chute = []
+      for (let i = 0; i < 8; i++) {
+        chute.push({
+          id: item * 8 + i + 1,
+          status: 0
+        })
+      }
+      return chute
+    })
+
     // 小车列表 - 同下货口数组，直线轨道21个，半圆轨道16个
+    // 21+21+8+8+8+8=74
     const len = [21, 16, 21, 16]
     let index = 0
     len.forEach(item => {
@@ -136,8 +133,10 @@ export default {
         return car
       })
     })
+
     return {
-      cartGroupLen: [21, 16, 21, 16],
+      carCount: 74,
+      cartLen: [21, 16, 21, 16],
       speed: 1.5, // 流水线速度
       notification: '', // 文本显示，和speed放在一起就好了
       cartList,
@@ -147,16 +146,20 @@ export default {
         exitPort: 888, // 格口
         exitPortDirection: 0 // 0或者1
       },
-      uploadList: [{
-        status: '', // 不同状态显示不同颜色
-        parcelCount: 10 // 包裹数量,文本显示
-      }],
+      uploadList: [],
       upload: {
         status: '', // 不同状态显示不同颜色
         parcelCount: 10 // 包裹数量,文本显示
       },
       cameraList: [
         {
+          id: 1,
+          status: '', // 相机状态
+          cartId: null, // 小车编号
+          trackNum: '' // 包裹编号
+        },
+        {
+          id: 2,
           status: '', // 相机状态
           cartId: null, // 小车编号
           trackNum: '' // 包裹编号
@@ -181,12 +184,12 @@ export default {
     }
   },
   mounted() {
-    // this.cartinterval = setInterval(() => {
-    //   this.updateCartSatus()
-    // }, 100000)
-    // this.chuteinterval = setInterval(() => {
-    //   this.updateChuteStatus()
-    // }, 3000)
+    this.cartinterval = setInterval(() => {
+      this.updateCartSatus()
+    }, 100000)
+    this.chuteinterval = setInterval(() => {
+      this.updateChuteStatus()
+    }, 3000)
   },
   beforeDestroy() {
     clearInterval(this.cartinterval)
@@ -209,9 +212,9 @@ export default {
       })
     },
     adjustCartList(cartList, anchor) {
-      if (anchor < 0 || anchor > 47) return
-      let dist = 48 - anchor
-      if (dist === 48) dist = 0
+      if (anchor < 0 || anchor > (this.carCount - 1)) return
+      let dist = this.carCount - anchor
+      if (dist === this.carCount) dist = 0
       const stuffixList = cartList.slice(0, dist)
       const prefixList = cartList.slice(dist)
       const tempList = prefixList.concat(stuffixList)
@@ -222,43 +225,44 @@ export default {
         const info = this.updateCartInfo(infoList, index)
         const cart = Object.assign(item, info)
         // 计算小车箭头隐藏、显示
-        const topArrow =
-          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
-          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
-        cart.topArrow = topArrow
+        cart.topArrow = this.calcArrowDir(cart.index, cart.exitPortDirection)
         return cart
       })
       this.cartList[1].forEach((item, index) => {
-        const info = this.updateCartInfo(infoList, 8 + index)
+        const info = this.updateCartInfo(infoList, this.cartLen[0] + index)
         const cart = Object.assign(item, info)
         // 计算小车箭头隐藏、显示
-        const topArrow =
-          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
-          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
-        cart.topArrow = topArrow
+        cart.topArrow = this.calcArrowDir(cart.index, cart.exitPortDirection)
         return cart
       })
       this.cartList[2].forEach((item, index) => {
-        const info = this.updateCartInfo(infoList, 24 + index)
+        const info = this.updateCartInfo(
+          infoList,
+          this.cartLen[0] + this.cartLen[1] + index
+        )
         const cart = Object.assign(item, info)
         // 计算小车箭头隐藏、显示
-        const topArrow =
-          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
-          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
-        cart.topArrow = topArrow
+        cart.topArrow = this.calcArrowDir(cart.index, cart.exitPortDirection)
         return cart
       })
       this.cartList[3].forEach((item, index) => {
-        const info = this.updateCartInfo(infoList, 32 + index)
+        const info = this.updateCartInfo(
+          infoList,
+          this.cartLen[0] + this.cartLen[1] + this.cartLen[2] + index
+        )
         const cart = Object.assign(item, info)
         // 计算小车箭头隐藏、显示
-        const topArrow =
-          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
-          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
-        cart.topArrow = topArrow
+        cart.topArrow = this.calcArrowDir(cart.index, cart.exitPortDirection)
         return cart
       })
       // console.log("fill: ", this.cartList);
+    },
+    calcArrowDir(index, port) {
+      const boundary = 8 * 3 + this.cartLen[1]
+      const direction =
+        (index > 8 && index < (boundary + 1) && !port) ||
+          ((index < 9 || index > boundary) && port)
+      return direction
     },
     updateCartInfo(cartList, i) {
       let cart = {}
@@ -278,7 +282,7 @@ export default {
       cart.title += '\n条码: ' + `${cart.barcode}`
       cart.title += '\n圈数: ' + `${cart.circleCount}`
       cart.statusClass = ''
-      if (cart.circleCount != '' && parseInt(cart.circleCount) > 5) {
+      if (cart.circleCount !== '' && parseInt(cart.circleCount) > 5) {
         cart.statusClass = 'blue'
       }
       if (cart.status === 0) {
@@ -344,7 +348,7 @@ li {
 .turntable-container {
   overflow: scroll;
   position: relative;
-  width: 100%;
+  // width: $turntable-width;
   height: calc(100vh - 50px);
   .bg, .content {
     position: absolute;
@@ -398,11 +402,19 @@ li {
       height: 35px;
       &.group-1 {
         left: $turntable-height/2;
-        top: 372px;
+        top: -40px;
       }
       &.group-2 {
-        left: 191px;
-        top: 428px;
+        left: $turntable-height/2;
+        top: 20px;
+      }
+      &.group-3 {
+        top: 240px;
+        left: 510px;
+      }
+      &.group-4 {
+        top: 300px;
+        left: 510px;
       }
     }
   }
@@ -685,7 +697,7 @@ li {
     .camera-1 {
       position: relative;
       top: 56px;
-      left: 698px;
+      left: 1000px;
       .left {
         transform: rotate(-26deg);
       }
