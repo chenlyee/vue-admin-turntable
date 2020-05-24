@@ -4,16 +4,21 @@
       <div class="bg"></div>
       <div class="content">
         <!-- 下货口 -->
-        <ul class="upload-group">
+        <ul class="chute-group">
           <li
-            v-for="(u, i) in uploadList"
-            :key="`upload-group-${i}`"
-            :class="['group-item', `group-${i + 1}`]">
-            <ul class="upload-list">
+            v-for="(u, i) in chuteList"
+            :key="`chute-group-${i}`"
+            :class="['group-item', `group-${i + 1}`]"
+          >
+            <ul class="chute-list">
               <li
-                v-for="(upl, j) in u"
-                :key="`upload-${j}`"
-                :class="['item', upl.statusClass]">{{ upl.id }}</li>
+                v-for="(chu, j) in u"
+                :key="`chute-${j}`"
+                :class="['item', chu.statusClass]"
+              >
+                <!-- {{ chu.id }} -->
+                {{ chu.exitport }}
+              </li>
             </ul>
           </li>
         </ul>
@@ -28,13 +33,21 @@
                 v-for="car in c"
                 :key="`cart-${car.index}`"
                 :class="['item', `item-${car.index}`, car.circleClass]"
-                :title="`下货口：${car.exitPort}`">
+                :title="`${car.title}`"
+              >
                 <div class="icon-con">
-                  <i v-show="car.topArrow && car.exitPort" class="el-icon-top" />
+                  <i
+                    v-show="car.topArrow && car.exitPort"
+                    class="el-icon-top"
+                  />
                 </div>
                 <span :class="['cart', car.statusClass]">{{ car.id }}</span>
                 <div class="icon-con">
-                  <i v-show="!car.topArrow && car.exitPort" class="el-icon-bottom" style="position: relative; top: -3px;" />
+                  <i
+                    v-show="!car.topArrow && car.exitPort"
+                    class="el-icon-bottom"
+                    style="position: relative; top: -3px;"
+                  />
                 </div>
               </li>
             </ul>
@@ -55,11 +68,12 @@
           </li>
         </ul>
         <!-- 工包台 -->
-        <ul class="chute-list">
+        <ul class="upload-list">
           <li
-            v-for="(c, i) in chuteList"
-            :key="`chute-${i}`"
-            :class="['chute', `chute-${i + 1}`]">
+            v-for="(c, i) in uploadList"
+            :key="`upload-${i}`"
+            :class="['upload', `upload-${i + 1}`]"
+          >
             <div class="count">包裹数量：<br />{{ c.parcelCount }}</div>
             <div class="icon"></div>
           </li>
@@ -70,7 +84,10 @@
 </template>
 
 <script>
-import { getList } from '@/api/turntable'
+import {
+  getChuteList,
+  getCartList
+} from '@/api/turntable'
 
 export default {
   name: 'Test',
@@ -78,22 +95,22 @@ export default {
     // 设计图内径：宽、高 726 * 388
     // 背景图尺寸： 1809 * 537   1100 / 326  (x-50*2) / (326-50*2) = 726/388
     // statusClass: error - 红色闪烁 yellow - 黄色 blue - 蓝色 green - 绿色
-    const uploadList = [[
-      { id: 1, status: 0, statusClass: '' },
+    const chuteList = [[
+      { id: 1, status: 0 },
       { id: 2, status: 1 },
       { id: 3, status: 2 },
-      { id: 4, status: 3, statusClass: 'error' },
+      { id: 4, status: 3 },
       { id: 5, status: 1 }
     ], [
       { id: 6, status: 0 },
       { id: 7, status: 1 },
       { id: 8, status: 2 },
-      { id: 9, status: 3, statusClass: 'error' },
+      { id: 9, status: 3 },
       { id: 10, status: 0 },
       { id: 11, status: 1 }
     ]]
-    // 小车列表 - 同下货口数组，直线轨道26个，半圆轨道11个
-    let index = 1
+    // 小车列表 - 同下货口数组，直线轨道8个，半圆轨道16个
+    let index = 48
     const len = [8, 16, 8, 16]
     const cartList = Array.from({ length: 4 }, (v, i) => {
       const cirClass1 = i === 1 ? 'right-' : i === 3 ? 'left-' : ''
@@ -101,32 +118,20 @@ export default {
       return Array.from({ length: len[i] }, (s, j) => {
         let circleClass = cirClass1
         if (i === 1 || i === 3) {
-          circleClass += (((i === 1 && j < 8) || (i === 3 && j > 7)) ? 'up-' : 'down-')
-          circleClass += ((j < 8) ? j : (j - 8))
+          circleClass +=
+            (i === 1 && j < 8) || (i === 3 && j > 7) ? 'up-' : 'down-'
+          circleClass += j < 8 ? j : j - 8
         }
 
         const car = {
           index,
           id: index,
-          circleClass,
-          status: (j % 3 ? 1 : j % 6 ? 2 : 3),
-          exitPort: (index % 4 ? index : ''),
-          exitPortDirection: j % 2,
-          title: 'hovertitle-' + index
+          circleClass
         }
-        car.statusClass = car.status === 3 ? 'error' : ''
-        // 计算小车箭头隐藏、显示
-        const topArrow = (index > 16 && index < 69 && (!car.exitPortDirection)) ||
-                          ((index < 20 || index > 68) && car.exitPortDirection)
-        car.topArrow = topArrow
-        index++
+        index--
         return car
       })
     })
-
-    console.log('cartList')
-    console.log(cartList)
-
     return {
       cartGroup: [8, 16, 8, 16],
       speed: 1.5, // 流水线速度
@@ -138,26 +143,28 @@ export default {
         exitPort: 888, // 格口
         exitPortDirection: 0 // 0或者1
       },
-      chuteList: [{
+      uploadList: [{
         status: '', // 不同状态显示不同颜色
         parcelCount: 10 // 包裹数量,文本显示
       }],
-      chute: {
+      upload: {
         status: '', // 不同状态显示不同颜色
         parcelCount: 10 // 包裹数量,文本显示
       },
-      cameraList: [{
-        status: '', // 相机状态
-        cartId: 10, // 小车编号
-        trackNum: '77777' // 包裹编号
-      }],
+      cameraList: [
+        {
+          status: '', // 相机状态
+          cartId: null, // 小车编号
+          trackNum: '' // 包裹编号
+        }
+      ],
       camera: {
         status: '', // 相机状态
         cartId: 10, // 小车编号
         trackNum: '77777' // 包裹编号
       },
-      uploadList,
-      upload: {
+      chuteList,
+      chute: {
         id: 1, // 供包台id
         notice: '' // 提示文本信息
       },
@@ -170,48 +177,139 @@ export default {
     }
   },
   mounted() {
-    // this.interval = setInterval(() => {
-    //   this.updateSatus()
-    // }, 5000)
+    this.cartinterval = setInterval(() => {
+      this.updateCartSatus()
+    }, 100000)
+    this.chuteinterval = setInterval(() => {
+      this.updateChuteStatus()
+    }, 3000)
   },
   beforeDestroy() {
-    clearInterval(this.interval)
+    clearInterval(this.cartinterval)
+    clearInterval(this.chuteinterval)
   },
   methods: {
-    updateSatus() {
-      getList().then(res => {
-        // 修改卡口状态
-        this.uploadList.forEach((g, i) => {
-          g.forEach((upload, j) => {
-            const index = i * 8 + j
-            upload.status = res.data.uploadList[index].status
+    updateCartSatus() {
+      getCartList().then(res => {
+        //   // 修改小车状态
+        const cartData = res.data.data
+        // console.log("req: ", res.data);
+        const cameraData = res.data.cameraInfo
+        this.cameraList[0].trackNum = cameraData.barcode
+        this.cameraList[0].cartId = cameraData.cartId
+        console.log(this.cameraList[0])
+        const anchor = res.data.cameraInfo.anchor
+        console.log('anchor: ', anchor)
+        const realList = this.adjustCartList(cartData.reverse(), anchor);
+        this.fillCartGroup(realList)
+      })
+    },
+    adjustCartList(cartList, anchor) {
+      if (anchor < 0 || anchor > 47) return
+      let dist = 48 - anchor
+      if (dist === 48) dist = 0
+      const stuffixList = cartList.slice(0, dist)
+      const prefixList = cartList.slice(dist)
+      const tempList = prefixList.concat(stuffixList)
+      return tempList
+    },
+    fillCartGroup(infoList) {
+      this.cartList[0].forEach((item, index) => {
+        const info = this.updateCartInfo(infoList, index)
+        const cart = Object.assign(item, info)
+        // 计算小车箭头隐藏、显示
+        const topArrow =
+          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
+          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection);
+        cart.topArrow = topArrow
+        return cart
+      })
+      this.cartList[1].forEach((item, index) => {
+        const info = this.updateCartInfo(infoList, 8 + index)
+        const cart = Object.assign(item, info)
+        // 计算小车箭头隐藏、显示
+        const topArrow =
+          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
+          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
+        cart.topArrow = topArrow
+        return cart
+      })
+      this.cartList[2].forEach((item, index) => {
+        const info = this.updateCartInfo(infoList, 24 + index)
+        const cart = Object.assign(item, info)
+        // 计算小车箭头隐藏、显示
+        const topArrow =
+          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
+          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
+        cart.topArrow = topArrow
+        return cart
+      })
+      this.cartList[3].forEach((item, index) => {
+        const info = this.updateCartInfo(infoList, 32 + index)
+        const cart = Object.assign(item, info)
+        // 计算小车箭头隐藏、显示
+        const topArrow =
+          (cart.index > 8 && cart.index < 33 && !cart.exitPortDirection) ||
+          ((cart.index < 9 || cart.index > 32) && cart.exitPortDirection)
+        cart.topArrow = topArrow
+        return cart
+      })
+      // console.log("fill: ", this.cartList);
+    },
+    updateCartInfo(cartList, i) {
+      let cart = {}
+
+      cart.id = cartList[i].id
+      cart.status =
+        parseInt(cartList[i].send * 2) + parseInt(cartList[i].receive)
+      cart.exitPort = cartList[i].exitport
+      cart.exitPortDirection = parseInt(cartList[i].direction)
+      cart.chutecode = cartList[i].chutecode
+      cart.barcode = cartList[i].barcode
+      cart.circleCount = cartList[i].circlecount
+      cart.title = '小车号: ' + `${cart.id}`
+      cart.title += '\n下货口: ' + `${cart.exitPort}`
+      cart.title += '\n方向: ' + `${cart.exitPortDirection}`
+      cart.title += '\n逻辑口: ' + `${cart.chutecode}`
+      cart.title += '\n条码: ' + `${cart.barcode}`
+      cart.title += '\n圈数: ' + `${cart.circleCount}`
+      cart.statusClass = ''
+      if (cart.circleCount != '' && parseInt(cart.circleCount) > 5) {
+        cart.statusClass = 'blue'
+      }
+      if (cart.status === 0) {
+        cart.statusClass = 'error'
+      } else if (cart.status === 1) {
+        cart.statusClass = 'error'
+      } else if (cart.status === 2) {
+        cart.statusClass = 'warn'
+      }
+      // car.statusClass = car.status === 3 ? "error" : ""
+      return cart
+    },
+    updateChuteStatus() {
+      getChuteList().then(res => {
+        const chuteData = res.data.data
+        console.log('chuteData: ', chuteData)
+        this.chuteList = this.chuteList.map(zone => {
+          return zone.map(item => {
+            item.exitport = chuteData[item.id].exitport
+            item.direction = chuteData[item.id].direction
+            item.chutecode = chuteData[item.id].chutecode
+            item.funcStatus = chuteData[item.id].funcStatus
+            item.buttonStatus = chuteData[item.id].buttonStatus
+            item.portStatus = chuteData[item.id].portStatus
+            item.statusClass = ''
+            if (item.funcStatus === 0) {
+              item.statusClass = 'red'
+            } else if (item.funcStatus === 2) {
+              item.statusClass = 'yellow'
+            }
+            return item
           })
         })
 
-        // 修改小车状态
-        const cartData = res.data.cartList
-        this.cartList.forEach((g, i) => {
-          g.forEach((cart, j) => {
-            let index = 0
-            this.cartGroup.forEach((num, sub) => {
-              if (sub <= i) {
-                index += num
-              }
-            })
-            cart.id = cartData[index].id
-            cart.status = cartData[index].status
-            cart.exitPort = cartData[index].exitPort
-            cart.exitPortDirection = cartData[index].exitPortDirection
-
-            // 小车颜色状态
-          })
-        })
-
-        // 修改顶拍相机
-        res.data.cameraList.forEach((camera, i) => {
-          this.cameraList[i].status = camera.cartId
-          this.cameraList[i].trackNum = camera.trackNum
-        })
+        console.log('deal data:', this.chuteList)
       })
     }
   }
@@ -268,21 +366,28 @@ li {
     background-color: #ef8886;
     animation: blink 1s linear infinite;
   }
+  .warn {
+    background-color: #e6b843;
+    animation: blink 1s linear infinite;
+  }
   /* 定义keyframe动画，命名为blink */
   @keyframes blink{
     0%{opacity: 1;}
     100%{opacity: 0;}
   }
+  .red {
+    background-color: #ef8886;
+  }
   .yellow {
     background-color: #e6b843;
   }
   .blue {
-    background-color: #619ed8
+    background-color: #619ed8;
   }
   .green {
-    background-color: #67c343
+    background-color: #67c343;
   }
-  .upload-group {
+  .chute-group {
     height: 0;
     .group-item {
       position: relative;
@@ -297,7 +402,7 @@ li {
       }
     }
   }
-  .upload-list {
+  .chute-list {
     height: 35px;
     .item {
       margin-right: 5px;
@@ -543,7 +648,7 @@ li {
       top: -162px;
       transform: rotate(82.75deg);
     }
-     .right-down-0 {
+    .right-down-0 {
       left: 12px;
       top: -166px;
       transform: rotate(-86deg);
@@ -590,15 +695,15 @@ li {
       display: inline-block;
       width: 54px;
       height: 50px;
-      background: url('../../assets/camera.png') no-repeat;  // 620 * 583
+      background: url('../../assets/camera.png') no-repeat; // 620 * 583
       background-size: contain;
     }
   }
   // 工包台
-  .chute-list {
+  .upload-list {
     position: absolute;
     top: 0;
-    .chute {
+    .upload {
       display: flex;
       align-items: center;
     }
@@ -608,7 +713,7 @@ li {
       border-top: 2px solid #c3c3c3;
       border-bottom: 2px solid #c3c3c3;
     }
-    .chute-1 {
+    .upload-1 {
       position: relative;
       left: 220px;
       top: 68px;
