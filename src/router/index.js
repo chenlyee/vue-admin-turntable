@@ -67,6 +67,11 @@ export const constantRoutes = [
       name: 'TurntableSmall',
       component: () => import('@/views/dashboard/small'),
       meta: { title: 'small', icon: 'turntable2' }
+    }, {
+      path: 'dashboard/large',
+      name: 'TurntableLarge',
+      component: () => import('@/views/dashboard/large'),
+      meta: { title: 'large', icon: 'turntable2' }
     }]
   },
   {
