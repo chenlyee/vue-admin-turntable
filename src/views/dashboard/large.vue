@@ -262,10 +262,11 @@ export default {
       // console.log("fill: ", this.cartList);
     },
     calcArrowDir(index, port) {
-      const boundary = 8 * 3 + this.cartLen[1]
+      const min = this.cartLen[3] / 2
+      const max = this.cartLen[3] + this.cartLen[2] + (this.cartLen[1] / 2)
       const direction =
-        (index > 8 && index < (boundary + 1) && !port) ||
-          ((index < 9 || index > boundary) && port)
+        (index > min && index <= max && !port) ||
+          ((index <= min || index > max) && port)
       return direction
     },
     updateCartInfo(cartList, i) {
