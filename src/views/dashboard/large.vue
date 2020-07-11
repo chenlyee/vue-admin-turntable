@@ -9,15 +9,15 @@
             v-for="(u, i) in chuteList"
             :key="`chute-group-${i}`"
             :class="['group-item', `group-${i + 1}`]"
-          >
+            >
             <ul class="chute-list">
               <li
                 v-for="(chu, j) in u"
                 :key="`chute-${j}`"
                 :class="['item', chu.statusClass]"
-              >
+                >
                 <!-- {{ chu.id }} -->
-                {{ chu.exitport }}
+                {{ chu.alias }}
               </li>
             </ul>
           </li>
@@ -34,12 +34,12 @@
                 :key="`cart-${car.index}`"
                 :class="['item', `item-${car.index}`, car.circleClass]"
                 :title="`${car.title}`"
-              >
+                >
                 <div class="icon-con">
                   <i
                     v-show="car.topArrow && car.exitPort"
                     class="el-icon-top"
-                  />
+                    />
                 </div>
                 <span :class="['cart', car.statusClass]">{{ car.id }}</span>
                 <div class="icon-con">
@@ -47,7 +47,7 @@
                     v-show="!car.topArrow && car.exitPort"
                     class="el-icon-bottom"
                     style="position: relative; top: -3px;"
-                  />
+                    />
                 </div>
               </li>
             </ul>
@@ -73,7 +73,7 @@
             v-for="(c, i) in uploadList"
             :key="`upload-${i}`"
             :class="['upload', `upload-${i + 1}`]"
-          >
+            >
             <div class="count">包裹数量：<br />{{ c.parcelCount }}</div>
             <div class="icon"></div>
           </li>
@@ -84,10 +84,8 @@
 </template>
 
 <script>
-import {
-  getChuteList,
-  getCartList
-} from '@/api/turntable'
+// import { fetchLineBList } from "@/api/cart"
+// import { getChuteListB } from "@/api/chute"
 
 export default {
   name: 'Large',
@@ -95,13 +93,27 @@ export default {
     // statusClass: red - 红色闪烁 yellow - 黄色 blue - 蓝色 green - 绿色
     const chuteList = [0, 1, 2, 3].map(item => {
       const chute = []
+      let page = 0
+      if (item === 0) {
+        page = 0
+      } else if (item === 1) {
+        page = 2
+      } else if (item === 2) {
+        page = 3
+      } else if (item === 3) {
+        page = 1
+      }
       for (let i = 0; i < 40; i++) {
         chute.push({
-          id: item * 8 + i + 1,
+          id: page * 40 + i + 1,
           status: 0
         })
       }
-      return chute
+      if (item > 1) {
+        return chute.reverse()
+      } else {
+        return chute
+      }
     })
 
     // 小车列表 - 同下货口数组，直线轨道21个，半圆轨道16个
@@ -160,13 +172,13 @@ export default {
           id: 1,
           status: '', // 相机状态
           cartId: null, // 小车编号
-          trackNum: '' // 包裹编号
+          trackNum: '123' // 包裹编号
         },
         {
           id: 2,
           status: '', // 相机状态
           cartId: null, // 小车编号
-          trackNum: '' // 包裹编号
+          trackNum: '456' // 包裹编号
         }
       ],
       camera: {
@@ -188,12 +200,12 @@ export default {
     }
   },
   mounted() {
-    this.cartinterval = setInterval(() => {
-      this.updateCartSatus()
-    }, 100000)
-    this.chuteinterval = setInterval(() => {
-      this.updateChuteStatus()
-    }, 3000)
+    // this.cartinterval = setInterval(() => {
+    //   this.updateCartSatus()
+    // }, 2000)
+    // this.chuteinterval = setInterval(() => {
+    //   this.updateChuteStatus()
+    // }, 2000)
   },
   beforeDestroy() {
     clearInterval(this.cartinterval)
@@ -201,15 +213,13 @@ export default {
   },
   methods: {
     updateCartSatus() {
-      getCartList().then(res => {
+      fetchLineBList().then(res => {
         //   // 修改小车状态
         const cartData = res.data.data
         // console.log("req: ", res.data);
         const cameraData = res.data.cameraInfo
-        this.cameraList[0].trackNum = cameraData.barcode
-        this.cameraList[0].cartId = cameraData.cartId
-        console.log(this.cameraList[0])
-        const anchor = res.data.cameraInfo.anchor
+        this.updateCameraStaus(cameraData)
+        const anchor = this.parseAnchor(cameraData)
         console.log('anchor: ', anchor)
         const realList = this.adjustCartList(cartData.reverse(), anchor)
         this.fillCartGroup(realList)
@@ -266,7 +276,7 @@ export default {
       const max = this.cartLen[3] + this.cartLen[2] + (this.cartLen[1] / 2)
       const direction =
         (index > min && index <= max && !port) ||
-          ((index <= min || index > max) && port)
+        ((index <= min || index > max) && port)
       return direction
     },
     updateCartInfo(cartList, i) {
@@ -301,7 +311,7 @@ export default {
       return cart
     },
     updateChuteStatus() {
-      getChuteList().then(res => {
+      getChuteListB().then(res => {
         const chuteData = res.data.data
         console.log('chuteData: ', chuteData)
         this.chuteList = this.chuteList.map(zone => {
@@ -312,11 +322,18 @@ export default {
             item.funcStatus = chuteData[item.id].funcStatus
             item.buttonStatus = chuteData[item.id].buttonStatus
             item.portStatus = chuteData[item.id].portStatus
+            item.alias = chuteData[item.id].alias
             item.statusClass = ''
             if (item.funcStatus === 0) {
               item.statusClass = 'red'
             } else if (item.funcStatus === 2) {
               item.statusClass = 'yellow'
+            }
+            if (item.buttonStatus === 0) {
+              item.statusClass = 'warn'
+            }
+            if (item.portStatus === 0) {
+              item.statusClass = 'error'
             }
             return item
           })
@@ -324,6 +341,22 @@ export default {
 
         console.log('deal data:', this.chuteList)
       })
+    },
+    updateCameraStaus (cameraData) {
+      this.cameraList[0].trackNum = cameraData[1].barcode
+      this.cameraList[0].cartId = cameraData[1].cartId
+      this.cameraList[1].trackNum = cameraData[0].barcode
+      this.cameraList[1].cartId = cameraData[0].cartId
+    },
+    parseAnchor (cameraData) {
+      let anchor = 0
+      cameraData.forEach(item => {
+        if (item.master) {
+          console.log('get master')
+          anchor = item.anchor
+        }
+      })
+      return anchor
     }
   }
 }
@@ -355,7 +388,7 @@ li {
   overflow: scroll;
   position: relative;
   width: 2470px;
-  height: $turntable-height + 80;
+  height: $turntable-height + 80 + 100;
   .bg, .content {
     position: absolute;
     left: 50%;
@@ -386,8 +419,12 @@ li {
   }
   /* 定义keyframe动画，命名为blink */
   @keyframes blink{
-    0%{opacity: 1;}
-    100%{opacity: 0;}
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
   }
   .red {
     background-color: #ef8886;
@@ -447,7 +484,6 @@ li {
     .status-4 {
       background-color: #e6b843;
     }
-
   }
   .cart-group {
     font-size: 0;
@@ -535,11 +571,11 @@ li {
     }
     .left-up-7 {
       left: 167px;
-      top: -1007px;   // -719px;
+      top: -1007px; // -719px;
       transform: rotate(-7.25deg);
     }
     // 圆环第二组
-    .right-up-1{
+    .right-up-1 {
       left: -117px;
       top: -42px;
       transform: rotate(15.25deg);
@@ -685,7 +721,9 @@ li {
       top: -513px;
       transform: rotate(-86deg);
     }
-    .right-middle-0, .right-middle-1, .right-middle-2 {
+    .right-middle-0,
+    .right-middle-1,
+    .right-middle-2 {
       left: 12px;
       transform: rotate(90deg);
     }
@@ -698,7 +736,9 @@ li {
     .right-middle-2 {
       top: -232px;
     }
-    .right-middle-3, .right-middle-4, .right-middle-5 {
+    .right-middle-3,
+    .right-middle-4,
+    .right-middle-5 {
       left: 12px;
       transform: rotate(-90deg);
     }
@@ -711,7 +751,9 @@ li {
     .right-middle-5 {
       top: -287px;
     }
-    .left-middle-0, .left-middle-1, .left-middle-2 {
+    .left-middle-0,
+    .left-middle-1,
+    .left-middle-2 {
       left: 12px;
       transform: rotate(90deg);
     }
@@ -724,7 +766,9 @@ li {
     .left-middle-2 {
       top: -204px;
     }
-    .left-middle-3, .left-middle-4, .left-middle-5 {
+    .left-middle-3,
+    .left-middle-4,
+    .left-middle-5 {
       left: 12px;
       transform: rotate(-90deg);
     }
@@ -745,7 +789,8 @@ li {
     // width: 100%;
     .camera {
       display: flex;
-      .left, .right {
+      .left,
+      .right {
         display: inline-block;
       }
       .left {
