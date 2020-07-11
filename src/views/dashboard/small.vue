@@ -2,6 +2,7 @@
   <div class="dashboard-container">
     <div class="turntable-container">
       <div class="bg"></div>
+      <div class="message-container">速度：{{speed}}{{notification}}</div>
       <div class="content">
         <!-- 下货口 -->
         <ul class="chute-group">
@@ -377,15 +378,15 @@ li {
 .dashboard {
   &-container {
     width: 100%;
-    height: calc(100vh - 50px);
+    // height: calc(100vh - 50px);
     margin: 30px;
   }
 }
 .turntable-container {
-  overflow: scroll;
+  // overflow: scroll;
   position: relative;
-  // width: $turntable-width;
-  height: calc(100vh - 50px);
+  width: $turntable-width;
+  height: $turntable-height + 80 + 100;
   .bg,
   .content {
     position: absolute;
@@ -737,16 +738,16 @@ li {
     }
     .camera-1 {
       position: relative;
-      top: 56px;
-      left: 1000px;
-      .left {
-        transform: rotate(-26deg);
-      }
+      top: 145px;
+      left: 1033px;
     }
     .camera-2 {
       position: relative;
       left: 63px;
-      top: 81px;
+      top: 157px;
+      .left {
+        transform: rotate(-26deg);
+      }
     }
     .icon {
       display: inline-block;

@@ -2,6 +2,7 @@
   <div class="dashboard-container">
     <div class="turntable-container">
       <div class="bg"></div>
+      <div class="message-container">速度：{{speed}}{{notification}}</div>
       <div class="content">
         <!-- 下货口 -->
         <ul class="chute-group">
@@ -15,6 +16,7 @@
                 v-for="(chu, j) in u"
                 :key="`chute-${j}`"
                 :class="['item', chu.statusClass]"
+                :title="`${chu.title}`"
                 >
                 <!-- {{ chu.id }} -->
                 {{ chu.alias }}
@@ -379,13 +381,13 @@ li {
 .dashboard {
   &-container {
     width: 100%;
-    height: calc(100vh - 50px);
+    // height: calc(100vh - 50px);
     margin: 30px;
     overflow: auto;
   }
 }
 .turntable-container {
-  overflow: scroll;
+  // overflow: scroll;
   position: relative;
   width: 2470px;
   height: $turntable-height + 80 + 100;
@@ -401,6 +403,11 @@ li {
   .bg {
     background: url('../../assets/large.png') no-repeat;
     background-size: contain;
+  }
+  .message-container {
+    position: absolute;
+    top: 5px;
+    left: 5px;
   }
   .item {
     display: inline-block;
